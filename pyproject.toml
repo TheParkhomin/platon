@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "platon-core"
+version = "0.0.1"
+description = ""
+authors = ["Aleksandr Parkhomin <a.parkhomin@yandex.ru>"]
+
+[tool.poetry.dependencies]
+python = "^3.11.1"
+
+fastapi = "^0.103.1"
+uvicorn = "^0.23.2"
+uvloop = "^0.17.0"
+databases = "^0.8.0"
+pydantic = "^2.4.1"
+
+
+[tool.poetry.dev-dependencies]
+wemake-python-styleguide = "^0.16.0"
+typing-inspect = '0.6.0'
+
+yoyo-migrations = "^7.0.2"
+
+pytest = "^6.2.2"
+pytest-cov = "^2.9.0"
