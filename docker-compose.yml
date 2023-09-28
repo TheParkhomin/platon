@@ -1,0 +1,18 @@
+version: '3.7'
+services:
+
+  database:
+    image: postgres:12
+    environment:
+      - POSTGRES_USER=platon
+      - POSTGRES_PASSWORD=platon123
+      - POSTGRES_DB=platon_db
+    networks:
+      - platon
+    expose:
+      - 5432
+    ports:
+      - "5432:5432"
+
+networks:
+  platon:
