@@ -3,8 +3,8 @@ from databases import Database
 
 
 class PingView:
-    def __init__(self, db:Database):
-        self._db = db
+    def __init__(self, wallet_repo):
+        self.wallet_repo = wallet_repo
 
     async def ping(self) -> PingResponse:
         return PingResponse(message='OK')

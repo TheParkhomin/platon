@@ -9,10 +9,21 @@ services:
       - POSTGRES_DB=platon_db
     networks:
       - platon
-    expose:
-      - 5432
     ports:
       - "5432:5432"
+
+  service:
+    build:
+      context: .
+    environment:
+      - DB_URL=postgresql://platon:platon123@database:5432/platon_db
+    networks:
+      - platon
+    depends_on:
+      - database
+    command: python -m platon_service
+    ports:
+      - 8000:8000
 
 networks:
   platon:
