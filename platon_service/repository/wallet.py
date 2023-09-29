@@ -1,14 +1,13 @@
-from databases import Database
-from typing import Optional, Mapping, cast
-from asyncpg.exceptions import CheckViolationError, UniqueViolationError
-from platon_service.errors import InsufficientFunds, WalletAlreadyExists, WalletNotFount
-
-from typing import Protocol
 import abc
+from typing import Mapping, Protocol, cast
+
+from asyncpg.exceptions import CheckViolationError, UniqueViolationError
+from databases import Database
+
+from platon_service.errors import InsufficientFunds, WalletAlreadyExists, WalletNotFount
 
 
 class WalletRepositoryProtocol(Protocol):
-
     @abc.abstractmethod
     async def create(self, user_id: int, address: str) -> Mapping:
         ...
@@ -30,7 +29,7 @@ class WalletRepository:
         query = """
             SELECT uid, address, user_id, score FROM wallets WHERE uid = :uid
         """
-        values = {'uid': uid}
+        values = {"uid": uid}
 
         row = await self._db.fetch_one(query, values)
         if not row:
@@ -44,7 +43,7 @@ class WalletRepository:
             
             RETURNING uid, user_id, address, score
         """
-        values = {'user_id': user_id, 'address': address}
+        values = {"user_id": user_id, "address": address}
         try:
             row = await self._db.fetch_one(query, values)
         except UniqueViolationError:
@@ -56,16 +55,16 @@ class WalletRepository:
         try:
             async with self._db.transaction():
                 await self._db.execute(
-                    'SELECT * FROM wallets WHERE uid in (:source_uid, :target_uid) FOR UPDATE;',
-                    {'source_uid': source_uid, 'target_uid': target_uid},
+                    "SELECT * FROM wallets WHERE uid in (:source_uid, :target_uid) FOR UPDATE;",
+                    {"source_uid": source_uid, "target_uid": target_uid},
                 )
                 await self._db.execute(
-                    'UPDATE wallets SET score = score - :transfer WHERE uid = :source_uid;',
-                    {'source_uid': source_uid, 'transfer': value},
+                    "UPDATE wallets SET score = score - :transfer WHERE uid = :source_uid;",
+                    {"source_uid": source_uid, "transfer": value},
                 )
                 await self._db.execute(
-                    'UPDATE wallets SET score = score + :transfer WHERE uid = :target_uid;',
-                    {'target_uid': target_uid, 'transfer': value},
+                    "UPDATE wallets SET score = score + :transfer WHERE uid = :target_uid;",
+                    {"target_uid": target_uid, "transfer": value},
                 )
         except CheckViolationError:
             raise InsufficientFunds(source_id=source_uid, value=value)

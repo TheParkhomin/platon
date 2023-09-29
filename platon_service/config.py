@@ -1,7 +1,7 @@
-from pydantic import ConfigDict, BaseModel
 from pathlib import Path
-from typing import Any, Optional
+from typing import Optional
 
+from pydantic import BaseModel
 from pyhocon import ConfigFactory
 
 
@@ -19,8 +19,8 @@ class PlatonConfig(BaseModel):
     database: DatabaseConfig
 
 
-def config_factory(folder: str = 'settings') -> PlatonConfig:
+def config_factory(folder: str = "settings") -> PlatonConfig:
     package_dir = Path(folder)
-    conf_path = package_dir / 'default.conf'
+    conf_path = package_dir / "default.conf"
     factory = ConfigFactory.parse_file(conf_path)
-    return PlatonConfig(**factory.get_config('config'))
+    return PlatonConfig(**factory.get_config("config"))

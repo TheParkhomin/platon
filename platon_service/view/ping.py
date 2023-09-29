@@ -1,5 +1,4 @@
 from platon_service.serializer.ping import PingResponse
-from databases import Database
 
 
 class PingView:
@@ -7,4 +6,4 @@ class PingView:
         self.wallet_repo = wallet_repo
 
     async def ping(self) -> PingResponse:
-        return PingResponse(message='OK')
+        return PingResponse(message="OK")

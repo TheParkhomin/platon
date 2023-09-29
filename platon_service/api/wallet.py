@@ -1,13 +1,19 @@
-from platon_service.repository.wallet import WalletRepository, WalletRepositoryProtocol
-from platon_service.entity.wallet import WalletEntity
-import secrets
-from platon_service.errors import InsufficientFunds, WalletAlreadyExists, ApiError, WalletNotFount, ApiNotFoundError
-from typing import Protocol
 import abc
+import secrets
+from typing import Protocol
+
+from platon_service.entity.wallet import WalletEntity
+from platon_service.errors import (
+    ApiError,
+    ApiNotFoundError,
+    InsufficientFunds,
+    WalletAlreadyExists,
+    WalletNotFount,
+)
+from platon_service.repository.wallet import WalletRepositoryProtocol
 
 
 class WalletApiProtocol(Protocol):
-
     @abc.abstractmethod
     async def create(self, user_id: int) -> WalletEntity:
         ...
@@ -17,7 +23,9 @@ class WalletApiProtocol(Protocol):
         ...
 
     @abc.abstractmethod
-    async def transfer(self, source_uid: int, target_uid: int, value: int) -> WalletEntity:
+    async def transfer(
+        self, source_uid: int, target_uid: int, value: int
+    ) -> WalletEntity:
         ...
 
 
@@ -28,7 +36,6 @@ class WalletApi:
         self._repo = repo
 
     async def create(self, user_id: int) -> WalletEntity:
-
         address = secrets.token_hex(self._SIZE_OF_HASH)
         try:
             wallet_raw = await self._repo.create(user_id, address)
@@ -45,7 +52,9 @@ class WalletApi:
 
         return WalletEntity(**wallet_raw)
 
-    async def transfer(self, source_uid: int, target_uid: int, value: int) -> WalletEntity:
+    async def transfer(
+        self, source_uid: int, target_uid: int, value: int
+    ) -> WalletEntity:
         try:
             await self._repo.transfer(source_uid, target_uid, value)
         except InsufficientFunds as err:

@@ -1,11 +1,12 @@
-from fastapi import FastAPI, APIRouter
-from platon_service.view.ping import PingView
 from databases import Database
+from fastapi import APIRouter, FastAPI
+
+from platon_service.api.wallet import WalletApi
 from platon_service.config import config_factory
 from platon_service.repository.wallet import WalletRepository
-from platon_service.api.wallet import WalletApi
-from platon_service.view.wallet import WalletView
 from platon_service.serializer.wallet import WalletResponseDetail
+from platon_service.view.ping import PingView
+from platon_service.view.wallet import WalletView
 
 
 class Server:
