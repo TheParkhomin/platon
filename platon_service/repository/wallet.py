@@ -4,21 +4,25 @@ from typing import Mapping, Protocol, cast
 from asyncpg.exceptions import CheckViolationError, UniqueViolationError
 from databases import Database
 
-from platon_service.errors import InsufficientFunds, WalletAlreadyExists, WalletNotFount
+from platon_service.errors import (
+    InsufficientFundsError,
+    WalletAlreadyExistsError,
+    WalletNotFoundError,
+)
 
 
 class WalletRepositoryProtocol(Protocol):
     @abc.abstractmethod
     async def create(self, user_id: int, address: str) -> Mapping:
-        ...
+        ...  # noqa: WPS428
 
     @abc.abstractmethod
     async def get_by_uid(self, uid: int) -> Mapping:
-        ...
+        ...  # noqa: WPS428
 
     @abc.abstractmethod
-    async def transfer(self, source_uid: int, target_uid: int, value: int) -> None:
-        ...
+    async def transfer(self, source_uid: int, target_uid: int, amount: int) -> None:
+        ...  # noqa: WPS428
 
 
 class WalletRepository:
@@ -29,29 +33,28 @@ class WalletRepository:
         query = """
             SELECT uid, address, user_id, score FROM wallets WHERE uid = :uid
         """
-        values = {"uid": uid}
+        query_values = {"uid": uid}
 
-        row = await self._db.fetch_one(query, values)
+        row = await self._db.fetch_one(query, query_values)
         if not row:
-            raise WalletNotFount(wallet_id=uid)
+            raise WalletNotFoundError(wallet_id=uid)
         return cast(Mapping, row)
 
     async def create(self, user_id: int, address: str) -> Mapping:
         query = """
             INSERT INTO wallets (user_id, address, score) VALUES
-            (:user_id, :address, 0)
-            
+            (:user_id, :address, 0)            
             RETURNING uid, user_id, address, score
         """
-        values = {"user_id": user_id, "address": address}
+        query_values = {"user_id": user_id, "address": address}
         try:
-            row = await self._db.fetch_one(query, values)
-        except UniqueViolationError:
-            raise WalletAlreadyExists(user_id)
+            row = await self._db.fetch_one(query, query_values)
+        except UniqueViolationError as err:
+            raise WalletAlreadyExistsError(user_id) from err
 
         return cast(Mapping, row)
 
-    async def transfer(self, source_uid: int, target_uid: int, value: int) -> None:
+    async def transfer(self, source_uid: int, target_uid: int, amount: int) -> None:
         try:
             async with self._db.transaction():
                 await self._db.execute(
@@ -60,11 +63,11 @@ class WalletRepository:
                 )
                 await self._db.execute(
                     "UPDATE wallets SET score = score - :transfer WHERE uid = :source_uid;",
-                    {"source_uid": source_uid, "transfer": value},
+                    {"source_uid": source_uid, "transfer": amount},
                 )
                 await self._db.execute(
                     "UPDATE wallets SET score = score + :transfer WHERE uid = :target_uid;",
-                    {"target_uid": target_uid, "transfer": value},
+                    {"target_uid": target_uid, "transfer": amount},
                 )
-        except CheckViolationError:
-            raise InsufficientFunds(source_id=source_uid, value=value)
+        except CheckViolationError as err:
+            raise InsufficientFundsError(source_id=source_uid, amount=amount) from err

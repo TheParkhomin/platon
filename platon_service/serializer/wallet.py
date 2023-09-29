@@ -8,7 +8,7 @@ class WalletCreateRequest(BaseModel):
 class WalletTransferRequest(BaseModel):
     source_uid: int
     target_uid: int
-    value: int
+    amount: int
 
 
 class WalletResponseDetail(BaseModel):

@@ -24,6 +24,10 @@ class Server:
         self._app.add_event_handler("startup", self._db.connect)
         self._create_routes()
 
+    @property
+    def app(self):
+        return self._app
+
     def _create_routes(self):
         wallet_view = WalletView(api=self._wallet_api)
         self._router.add_api_route(
@@ -42,7 +46,7 @@ class Server:
             endpoint=wallet_view.create,
             methods=["POST"],
             response_model=WalletResponseDetail,
-        ),
+        )
         self._router.add_api_route(
             "/wallet/transfer",
             endpoint=wallet_view.transfer,
@@ -50,6 +54,3 @@ class Server:
             response_model=WalletResponseDetail,
         )
         self._app.include_router(self._router)
-
-    def get_app(self):
-        return self._app

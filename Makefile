@@ -1,7 +1,7 @@
 -include .env
 
 run:
-	@uvicorn platon_service.server --host=0.0.0.0 --reload
+	@python -m platon_service
 
 docker.compose.run:
 	@docker compose run -p 8000:8000 service
@@ -14,3 +14,7 @@ db.rollback:
 
 test:
 	@pytest
+
+lint:
+	@mypy platon_service
+	@flake8 platon_service

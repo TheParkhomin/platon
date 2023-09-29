@@ -20,7 +20,7 @@ class WalletView:
         try:
             wallet: WalletEntity = await self._api.create(**dict(request))
         except ApiError as err:
-            return JSONResponse(status_code=400, content={"message": str(err)})
+            return JSONResponse(status_code=HTTPStatus.BAD_REQUEST, content={"message": str(err)})
 
         return WalletResponseDetail(**dict(wallet))
 
@@ -29,7 +29,7 @@ class WalletView:
             wallet: WalletEntity = await self._api.get_by_uid(uid)
         except ApiNotFoundError as err:
             return JSONResponse(
-                status_code=HTTPStatus.NOT_FOUND, content={"message": str(err)}
+                status_code=HTTPStatus.NOT_FOUND, content={"message": str(err)},
             )
         return WalletResponseDetail(**dict(wallet))
 
@@ -38,7 +38,7 @@ class WalletView:
             wallet: WalletEntity = await self._api.transfer(**dict(request))
         except ApiError as err:
             return JSONResponse(
-                status_code=HTTPStatus.BAD_REQUEST, content={"message": str(err)}
+                status_code=HTTPStatus.BAD_REQUEST, content={"message": str(err)},
             )
 
         return WalletEntity(**dict(wallet))
