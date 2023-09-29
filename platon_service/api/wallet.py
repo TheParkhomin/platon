@@ -13,22 +13,23 @@ class WalletApiProtocol(Protocol):
         ...
 
     @abc.abstractmethod
-    async def get_by_uid(self, uid: int) -> WalletEntity | None:
+    async def get_by_uid(self, uid: int) -> WalletEntity:
         ...
 
     @abc.abstractmethod
-    async def transfer(self, source_uid: int, target_uid: int, value: int) -> WalletEntity | None:
+    async def transfer(self, source_uid: int, target_uid: int, value: int) -> WalletEntity:
         ...
 
 
 class WalletApi:
+    _SIZE_OF_HASH = 64
 
     def __init__(self, repo: WalletRepositoryProtocol):
         self._repo = repo
 
     async def create(self, user_id: int) -> WalletEntity:
 
-        address = secrets.token_hex(64)
+        address = secrets.token_hex(self._SIZE_OF_HASH)
         try:
             wallet_raw = await self._repo.create(user_id, address)
         except WalletAlreadyExists as err:
@@ -51,6 +52,3 @@ class WalletApi:
             raise ApiError(msg=str(err))
 
         return await self.get_by_uid(source_uid)
-
-
-

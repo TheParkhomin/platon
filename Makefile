@@ -11,3 +11,6 @@ db.migrate:
 
 db.rollback:
 	@yoyo rollback --database ${DB_URL} -b
+
+test:
+	@pytest

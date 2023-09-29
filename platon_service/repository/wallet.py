@@ -14,7 +14,7 @@ class WalletRepositoryProtocol(Protocol):
         ...
 
     @abc.abstractmethod
-    async def get_by_uid(self, uid: int) -> Optional[Mapping]:
+    async def get_by_uid(self, uid: int) -> Mapping:
         ...
 
     @abc.abstractmethod
