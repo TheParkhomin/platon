@@ -1,7 +1,7 @@
 from databases import Database
 from typing import Optional, Mapping, cast
-from asyncpg.exceptions import CheckViolationError
-from platon_service.errors import InsufficientFunds
+from asyncpg.exceptions import CheckViolationError, UniqueViolationError
+from platon_service.errors import InsufficientFunds, WalletAlreadyExists, WalletNotFount
 
 from typing import Protocol
 import abc
@@ -26,13 +26,15 @@ class WalletRepository:
     def __init__(self, db: Database):
         self._db = db
 
-    async def get_by_uid(self, uid: int) -> Optional[Mapping]:
+    async def get_by_uid(self, uid: int) -> Mapping:
         query = """
             SELECT uid, address, user_id, score FROM wallets WHERE uid = :uid
         """
         values = {'uid': uid}
 
         row = await self._db.fetch_one(query, values)
+        if not row:
+            raise WalletNotFount(wallet_id=uid)
         return cast(Mapping, row)
 
     async def create(self, user_id: int, address: str) -> Mapping:
@@ -43,7 +45,11 @@ class WalletRepository:
             RETURNING uid, user_id, address, score
         """
         values = {'user_id': user_id, 'address': address}
-        row = await self._db.fetch_one(query, values)
+        try:
+            row = await self._db.fetch_one(query, values)
+        except UniqueViolationError:
+            raise WalletAlreadyExists(user_id)
+
         return cast(Mapping, row)
 
     async def transfer(self, source_uid: int, target_uid: int, value: int) -> None:
