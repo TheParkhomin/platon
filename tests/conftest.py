@@ -6,10 +6,24 @@ from faker import Faker
 from platon_service.config import PlatonConfig, config_factory
 from platon_service.server import Server
 from fastapi.testclient import TestClient
+import asyncio
 
 
-@pytest.fixture(scope='session')
-def db_instance():
+pytest_plugins = (
+    "tests.fixtures.wallet",
+    "pytest_asyncio"
+)
+
+
+# @pytest.fixture(scope="session")
+# def loop():
+#     loop = asyncio.get_event_loop_policy().new_event_loop()
+#     yield loop
+#     loop.close()
+#
+
+@pytest.fixture
+async def db_instance():
     db_url = os.environ['DB_URL']
     backend = yoyo.get_backend(db_url)
     migrations = yoyo.read_migrations('migrations')
@@ -18,9 +32,9 @@ def db_instance():
 
 
 @pytest.fixture
-async def connected_db(loop, db_instance: Database):
-    async with db_instance:
-        yield db_instance
+async def connected_db(db_instance: Database):
+    await db_instance.connect()
+    yield db_instance
 
 
 @pytest.fixture

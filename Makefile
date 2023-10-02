@@ -18,3 +18,7 @@ test:
 lint:
 	@mypy platon_service
 	@flake8 platon_service
+
+
+clear.cache.poetry:
+	@poetry cache clear --all pypi
