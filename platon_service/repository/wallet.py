@@ -13,7 +13,7 @@ from platon_service.errors import (
 
 class WalletRepositoryProtocol(Protocol):
     @abc.abstractmethod
-    async def create(self, user_id: int, address: str) -> Mapping:
+    async def create(self, user_id: int, address: str, score: int = 0) -> Mapping:
         ...  # noqa: WPS428
 
     @abc.abstractmethod
@@ -40,13 +40,13 @@ class WalletRepository:
             raise WalletNotFoundError(wallet_id=uid)
         return cast(Mapping, row)
 
-    async def create(self, user_id: int, address: str) -> Mapping:
+    async def create(self, user_id: int, address: str, score: int = 0) -> Mapping:
         query = """
             INSERT INTO wallets (user_id, address, score) VALUES
-            (:user_id, :address, 0)            
+            (:user_id, :address, :score)            
             RETURNING uid, user_id, address, score
         """
-        query_values = {"user_id": user_id, "address": address}
+        query_values = {"user_id": user_id, "address": address, "score": score}
         try:
             row = await self._db.fetch_one(query, query_values)
         except UniqueViolationError as err:
