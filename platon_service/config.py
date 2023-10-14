@@ -17,6 +17,8 @@ class DatabaseConfig(BaseModel):
 
 class PlatonConfig(BaseModel):
     database: DatabaseConfig
+    hash_salt: str
+    jwt_secret: str
 
 
 def config_factory(folder: str = "settings") -> PlatonConfig:

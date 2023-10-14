@@ -16,9 +16,25 @@ class WalletNotFoundError(ExpectedError):
         super().__init__(f"Wallet with id {wallet_id} not found")
 
 
+class UserNotFoundError(ExpectedError):
+    def __init__(self, user_id: int):
+        super().__init__(f"User with id {user_id} not found")
+
+
+class UsernameNotFoundError(ExpectedError):
+    def __init__(self, username: str):
+        super().__init__(f"User with username {username} not found")
+
+
 class WalletAlreadyExistsError(ExpectedError):
     def __init__(self, user_id: int):
         super().__init__(f"Wallet with user_id {user_id} already exist")
+
+
+class UserAlreadyExist(ExpectedError):
+
+    def __init__(self, username: str):
+        super().__init__(f"User with username {username} already exist")
 
 
 class ApiError(ApiExpectedError):
